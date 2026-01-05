@@ -340,8 +340,8 @@ class Deobfuscator:
         print(f"[{self.section.name}]")
         
         self.section_rva = self.section.virtual_address
-        self.start_va = self.image_base + self.section_rva + 4
-        self.content = bytearray(self.section.content)[4:]
+        self.start_va = self.image_base + self.section_rva + 8
+        self.content = bytearray(self.section.content)[8:]
 
         self.remove_garbages()
         self.simplify_arithmetic_op()
