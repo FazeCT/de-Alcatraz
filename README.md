@@ -20,7 +20,7 @@
 
 Clone the repository:
 ```bash
-git clone [https://github.com/fazect/de-Alcatraz.git](https://github.com/fazect/de-Alcatraz.git)
+git clone https://github.com/fazect/de-Alcatraz.git
 cd de-Alcatraz
 ```
 
