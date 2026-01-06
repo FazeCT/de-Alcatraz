@@ -44,7 +44,7 @@ class Deobfuscator:
     def _get_instructions(self):
         return list(self.cs.disasm(self.content, self.start_va))
 
-    def patch(self, address, bytes_list):
+    def _patch(self, address, bytes_list):
         self.binary.patch_address(address, bytes_list)
         
         offset = address - self.start_va
@@ -67,14 +67,14 @@ class Deobfuscator:
 
             if ins.bytes == b'\xEB\xFF':
                 self._log(f"    [!] Patched jmp+1 at 0x{ins.address:X}")
-                self.patch(ins.address, [0x90])
+                self._patch(ins.address, [0x90])
                 offset += 1
                 count += 1
                 continue
 
             elif ins.mnemonic in ['popf', 'pushf']:
                 self._log(f"    [!] Patched {ins.mnemonic} at 0x{ins.address:X}")
-                self.patch(ins.address, [0x90] * ins.size)
+                self._patch(ins.address, [0x90] * ins.size)
                 count += 1
             
             offset += ins.size
@@ -92,7 +92,7 @@ class Deobfuscator:
         val_mask = (1 << bit_width) - 1
         return ((val >> shift) & val_mask) | ((val & val_mask) << (bit_width - shift))
 
-    def calc_constant(self, start_offset, start_va, target_reg_id, initial_val, op_size):
+    def _calc_constant(self, start_offset, start_va, target_reg_id, initial_val, op_size):
         bit_width = op_size * 8
         val_mask = (1 << bit_width) - 1
         current_val = initial_val
@@ -153,7 +153,7 @@ class Deobfuscator:
                 op_size = ins.operands[0].size
                 initial_val = int(ins.operands[1].imm)
                 
-                final_val, consumed_bytes, ops_count = self.calc_constant(
+                final_val, consumed_bytes, ops_count = self._calc_constant(
                     offset + ins.size, self.start_va, target_reg_id, initial_val, op_size
                 )
 
@@ -172,7 +172,7 @@ class Deobfuscator:
                         if len(encoding) <= total_block_size:
                             nop_padding = [0x90] * (total_block_size - len(encoding))
                             patch_bytes = encoding + nop_padding
-                            self.patch(ins.address, patch_bytes)
+                            self._patch(ins.address, patch_bytes)
                             
                             self._log(f"    [!] Merged {ops_count} ops -> {new_asm} at 0x{ins.address:X}")
                             
@@ -239,7 +239,7 @@ class Deobfuscator:
         for p in patches:
             call_offset = p['target'] - p['addr'] - 5
             ins = b'\xE8' + call_offset.to_bytes(4, 'little', signed=True)
-            self.patch(p['addr'], [x for x in ins])
+            self._patch(p['addr'], [x for x in ins])
         
         print(f"[+] Resolved {len(patches)} calls instructions.")
 
@@ -328,7 +328,7 @@ class Deobfuscator:
         for p in patches:
             jmp_offset = p['target'] - p['addr'] - 5
             ins = b'\xE9' + jmp_offset.to_bytes(4, 'little', signed=True)
-            self.patch(p['addr'], [x for x in ins])
+            self._patch(p['addr'], [x for x in ins])
 
         print(f"[+] Resolved {len(patches)} CFF paths.")
 
