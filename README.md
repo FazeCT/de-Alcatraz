@@ -20,7 +20,7 @@
 
 Clone the repository:
 ```bash
-git clone [https://github.com/fazect/de-Alcatraz.git](https://github.com/fazect/de-Alcatraz.git)
+git clone https://github.com/fazect/de-Alcatraz.git
 cd de-Alcatraz
 ```
 
@@ -44,9 +44,9 @@ The tool runs in **4** separate steps:
 
 2. `simplify_arithmetic_op()`: Searches for immediate calculation chains and collapses each of them into a single instruction with the final immediate.
 
-3. `merge_tail_calls()`: For each call instruction, skips the *thunk* jumps in between and patches to call the final destination directly.
+3. `solve_cff()`: For each CFF group, finds the main dispatcher, and redirects all paths to directly jump to destination instead of going through the dispatcher.
 
-4. `solve_cff()`: For each CFF group, finds the main dispatcher, and redirects all paths to directly jump to destination instead of going through the dispatcher.
+4. `merge_tail_calls()`: For each call instruction, skips the *thunk* jumps in between and patches to call the final destination directly.
 
 ## Preview
 
