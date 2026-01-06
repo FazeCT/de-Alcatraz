@@ -33,9 +33,10 @@ class Deobfuscator:
         if not self.section:
             print(f"[-] Error: Section '{section_name}' not found in binary.")
             sys.exit(1)
-
-        self.content = None
-        self.start_va = 0
+   
+        self.section_rva = self.section.virtual_address
+        self.start_va = self.image_base + self.section_rva + 8
+        self.content = bytearray(self.section.content)[8:]
 
     def _log(self, message):
         if self.verbose:
@@ -334,10 +335,6 @@ class Deobfuscator:
 
     def run(self):
         print(f"[{self.section.name}]")
-        
-        self.section_rva = self.section.virtual_address
-        self.start_va = self.image_base + self.section_rva + 8
-        self.content = bytearray(self.section.content)[8:]
 
         self.remove_garbages()
         self.simplify_arithmetic_op()
