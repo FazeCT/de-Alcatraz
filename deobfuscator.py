@@ -209,11 +209,7 @@ class Deobfuscator:
                 depth = 0x100
                 
                 while depth > 0:  
-                    if jmp_dst >= self.start_va + len(self.content) or jmp_dst < self.start_va:
-                        break
-                   
-                    jmp_offset = jmp_dst - self.start_va
-                    jmp_code = self.content[jmp_offset:jmp_offset+15]
+                    jmp_code = self.binary.get_content_from_virtual_address(jmp_dst, 15)
                     try:
                         first_ins = next(self.cs.disasm(jmp_code, jmp_dst, count=1))
                     except StopIteration:
