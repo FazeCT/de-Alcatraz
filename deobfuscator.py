@@ -37,6 +37,7 @@ class Deobfuscator:
         self.section_rva = self.section.virtual_address
         self.start_va = self.image_base + self.section_rva + 8
         self.content = bytearray(self.section.content)[8:]
+        self.calls_done = {}
 
     def _log(self, message):
         if self.verbose:
@@ -206,6 +207,15 @@ class Deobfuscator:
                 except:
                     continue
 
+                if target_va in self.calls_done:
+                    real_function_va = self.calls_done[target_va]
+                    patches.append({
+                        'addr': curr_call_addr,
+                        'target': real_function_va,
+                    })
+                    self._log(f"    [!] Call instruction at 0x{curr_call_addr:X} patched to call 0x{real_function_va:X}")
+                    continue
+
                 jmp_dst = target_va
                 depth = 0x100
                 
@@ -233,6 +243,7 @@ class Deobfuscator:
                                 'target': real_function_va,
                             })
                             self._log(f"    [!] Call instruction at 0x{curr_call_addr:X} patched to call 0x{real_function_va:X}")
+                            self.calls_done[target_va] = real_function_va
                         break
                 else:
                     print(f"Depth limit exceeded for call at 0x{curr_call_addr:X}. Change limit if needed.")
